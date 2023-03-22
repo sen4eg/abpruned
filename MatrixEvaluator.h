@@ -17,7 +17,7 @@ public:
     MatrixEvaluator()= default;
 
     tuple<int,int> getBestMove(int **board, int player, int d){
-        TreeNode root = TreeNode(board, player, d);
+        TreeNode root = TreeNode(board, player, d, 4, nullptr, nullptr, false);
         tuple<int,int> best_move = root.get_best_move();
         return best_move;
     }
