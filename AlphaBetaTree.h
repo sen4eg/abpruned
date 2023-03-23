@@ -9,8 +9,13 @@ using namespace std;
 #include <tuple>
 #include <vector>
 #include <set>
+#include <limits>
+
+#define INFINITY std::numeric_limits<double>::infinity()
 
 #define EMPTY 0
+
+
 
 #define OP_MET 4
 #define PL_MET 2
@@ -31,21 +36,40 @@ int **apply_move(int **board, pair<int, int> move, int dim, int pl);
 bool inBound(int x, int y);
 vector<pair<int, int>> get_all_moves(int **board, int player, int dim);
 
-void ABprune(int **board, int player, int dim, int depth, double &alpha, double &beta, double &v, bool isMin = false){
+void evaluate(int **board, int player, int dim, bool isMin);
+
+pair<int, int> ABprune(int **board, int player, int dim, int depth, double &alpha, double &beta, double &v, bool isMin = false){
+    if(!depth){
+        evaluate(board, player, dim, isMin);
+    }
     auto moves = get_all_moves(board, player, dim);
+    if(isMin && moves.size() == 0){
+        // DO max node for board instead
+    }
     vector<double> move_scores(moves.size());
     int idx = 0;
-    for (int i = 0; i < moves.size(); i++){
+    double a = alpha, b = beta, v1;
+    for (int i = 0; i < moves.size() && b >= a; i++){
         int **new_board = apply_move(board, moves[i], dim, player);
-        double a, b, v1;
         ABprune(new_board, player, dim, depth-1, a, b, v1);
         move_scores[i] = v1;
         if(minMaxComparator(v1, move_scores[idx], isMin)){
             idx = i;
         }
-        v = move_scores[idx];
+        if(isMin && b > v1){
+            b = v1;
+        }
+        if(!isMin && a < v1){
+            a = v1;
+        }
     }
+
+    v = move_scores[idx];
     return moves[idx];
+}
+
+void evaluate(int **board, int player, int dim, bool isMin) {
+
 }
 
 vector<pair<int, int>> get_all_moves(int ** board, int player, int dim) { // this code chunk ended up to be ugly as hell, but it's my ugly as hell code chunk, also it may be about 2 times faster in 'some' cases then more straight forward implementation
