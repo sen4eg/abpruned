@@ -38,15 +38,21 @@ pair<int, int> ABprune(int **board, int player, int dim, int depth, double &alph
         return make_pair(-1, -1);
     }
     auto moves = get_all_moves(board, player, dim);
-    if(isMin && moves.size() == 0){
-        // DO max node for board instead
+    if(moves.size() == 0){
+        isMin = !isMin;
+        player = 1-player;
+        moves = get_all_moves(board, player, dim);
+        if(moves.size() == 0){
+            // game overs here
+            v = evaluate(board, player, dim, isMin);
+        }
     }
     vector<double> move_scores(moves.size());
     int idx = 0;
     double a = alpha, b = beta, v1;
     for (int i = 0; i < moves.size() && b >= a; i++){
         int **new_board = apply_move(board, moves[i], dim, player);
-        ABprune(new_board, player, dim, depth-1, a, b, v1);
+        ABprune(new_board, 1 - player, dim, depth-1, a, b, v1, !isMin);
         move_scores[i] = v1;
         if(minMaxComparator(v1, move_scores[idx], isMin)){
             idx = i;
