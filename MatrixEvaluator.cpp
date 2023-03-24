@@ -18,7 +18,7 @@ class MatrixEvaluator{
 public:
     MatrixEvaluator()= default;
 
-    static pair<int,int> getBestMove(int **board, int player, int d, int depth){
+    static pair<int,int> getBestMove(int board[10][10], int player, int d, int depth){
         ofstream BoardFile("board.txt");
         for(int i = 0; i < d; i++){
             for(int j = 0; j < d; j++){
@@ -26,11 +26,13 @@ public:
             }
             BoardFile << endl;
         }
+
         BoardFile.close();
         double alp = -INF;
         double bet = INF;
         double v;
-        auto res = ABprune(board, player, d, depth, alp, bet, v, false);
+        pair<int, int> res;
+        ABprune(board, player, d, depth, alp, bet, v, res, false);
 
         return res;
     }
@@ -49,23 +51,25 @@ public:
         if(data.size() != 64){
             d = data.size() > 64? 10:6;
         }
-        int **board = make_board(8);
+        int board[10][10];// fix it less prob
+
         for (int i = 0; i < data.size(); i++){
             board[i/d][i%d] = data[i];
         }
         double alp = -INF;
         double bet = INF;
         double v;
-        auto res = ABprune(board, player, d, depth, alp, bet, v, false);
+
+        pair<int,int> res;
+        ABprune(board, player, d, depth, alp, bet, v, res, false);
 
         cout << res.first << " " << res.second << endl;
     }
 
     static boost::python::tuple calculateBestMove(boost::python::list matrix, int player, int max_depth){
         int dim = boost::python::len(matrix);
-        int ** board = new int *[dim];
+        int board[10][10];
         for (int i = 0; i < dim; i++){
-            board[i] = new int[dim];
             boost::python::list row = boost::python::extract<boost::python::list>(matrix[i]);
             vector<int> vec((boost::python::stl_input_iterator<int>(row)),boost::python::stl_input_iterator<int>());
             for(int j = 0; j < dim; j++){

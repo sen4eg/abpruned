@@ -32,7 +32,7 @@ void free_board(int **board, int dim){
     board = nullptr;
 }
 
-void print_board(int **board, int player, int dim){
+void print_board(int board[10][10], int player, int dim){
 //    ofstream BoardFile("board.txt");
     cerr << "Pl:"<< player << endl;
     for(int i = 0; i < dim; i++){
@@ -54,31 +54,32 @@ void process_tile(int x, int y, const int OP, const int PL, unsigned int &flag,
 
 bool inUpperBound(int x, int y, int dim);
 
-int **apply_move(int **board, pair<int, int> move, int dim, int pl);
+//int **apply_move(int **board, pair<int, int> move, int dim, int pl);
 
 bool inBound(int x, int y, int i);
 
-vector<pair<int, int>> get_all_moves(int **board, int player, int dim);
+vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim);
 
-double evaluate(int **board, int player, int dim, bool isMin);
+double evaluate(int board[10][10], int player, int dim, bool isMin);
 
-pair<int, int> ABprune(int **board, int player, int dim, int depth, double &alpha, double &beta, double &v, bool isMin = false){
+void apply_move(int oldBoard[10][10], int new_board[10][10], pair<int, int> move, int dim, int player);
+
+void ABprune(int board[10][10], int player, int dim, int depth, double &alpha, double &beta, double &v, pair<int, int> &res, bool isMin = false){
     if(!depth){
         v = evaluate(board, player, dim, isMin);
-        return make_pair(-1, -1);
+        return;
     }
-    print_board(board, player, dim);
+//    print_board(board, player, dim);
 
-    auto moves = get_all_moves(board, player, dim);
+    vector<pair<int, int>> moves = get_all_moves(board, player, dim);
 
     if(moves.size() == 0){
         isMin = !isMin;
-        player = 1-player;
-        moves = get_all_moves(board, player, dim);
+        moves = get_all_moves(board, player ^ isMin, dim);
         if(moves.size() == 0){
             // game overs here
             v = evaluate(board, player, dim, isMin);
-            return make_pair(-1, -1);
+            return;
         }
     }
 
@@ -86,8 +87,11 @@ pair<int, int> ABprune(int **board, int player, int dim, int depth, double &alph
     int idx = 0;
     double a = alpha, b = beta, v1;
     for (int i = 0; i < moves.size() && b >= a; i++){
-        int **new_board = apply_move(board, moves[i], dim, player);
-        ABprune(new_board, 1 - player, dim, depth-1, a, b, v1, !isMin);
+//        int **new_board = apply_move(board, moves[i], dim, player ^ isMin);
+        int new_board[10][10];
+        apply_move(board, new_board, moves[i], dim, player ^ isMin);
+        pair<int, int> temp;
+        ABprune(new_board, player, dim, depth-1, a, b, v1, temp, !isMin);
         move_scores[i] = v1;
         if(minMaxComparator(v1, move_scores[idx], isMin)){
             idx = i;
@@ -98,14 +102,44 @@ pair<int, int> ABprune(int **board, int player, int dim, int depth, double &alph
         if(!isMin && a < v1){
             a = v1;
         }
-        free_board(new_board, dim);
     }
 
     v = move_scores[idx];
-    return moves[idx];
+    res = moves[idx];
 }
 
-double evaluate(int **board, int player, int dim, bool isMin) {
+void apply_move(int oldBoard[10][10], int new_board[10][10], pair<int, int> move, int dim, int pl) {
+    int op = 1 - pl;
+    for (int i = 0; i < dim; i++){
+        copy(oldBoard[i], oldBoard[i] + dim, new_board[i]);
+    }
+
+    for (int i = 0; i < 8; i++){
+        int dx = ((i%4) != 0) * (-1 + 2 * (i < 4));
+        int dy = ((i%4) != 2) * (-1 + 2 * (i%7 > 1));// damn, c is great cuz of this kind of math
+
+        int x = move.first + dx;
+        int y = move.second + dx;
+
+        while(inBound(x, y, dim) && new_board[y][x] == op){
+            x = x + dx;
+            y = y + dy;
+        }
+
+        if (inBound(x, y, dim) && new_board[y][x] == pl){
+            x = move.first;
+            y = move.second;
+            while(inBound(x, y, dim) && new_board[y][x] == op){
+                new_board[y][x] = pl;
+                x = x + dx;
+                y = y + dy;
+            }
+        }
+    }
+
+}
+
+double evaluate(int board[10][10], int player, int dim, bool isMin) {
     int count[3] = {0};
     for (int y = 0; y < dim; y++){
         for(int x = 0; x < dim; x++){
@@ -115,7 +149,7 @@ double evaluate(int **board, int player, int dim, bool isMin) {
     return count[player + 1] * 1.0 / count[2 - player];
 }
 
-vector<pair<int, int>> get_all_moves(int ** board, int player, int dim) { // this code chunk ended up to be ugly as hell, but it's my ugly as hell code chunk, also it may be about 2 times faster in 'some' cases then more straight forward implementation
+vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim) { // this code chunk ended up to be ugly as hell, but it's my ugly as hell code chunk, also it may be about 2 times faster in 'some' cases then more straight forward implementation
 //    vector<tuple<int, int>> res;
     set<pair<int, int>> moves;
     const int OP = 1 - player, PL = player;
@@ -134,9 +168,6 @@ vector<pair<int, int>> get_all_moves(int ** board, int player, int dim) { // thi
             while(inBound(x, y, dim)){
                 int ix = -1, iy = -1;
                 current_place = board[y][x];// xy? test!(notation in python exmpl files) shouldn't be an issue due to symmetricity
-                if(x == 5 && y == 2 || y == dim - 1 && x == 0){
-                    printf("SSS");
-                }
                 process_tile(x, y, OP, PL, flag, op_x, op_y, current_place, ix, iy);
                 if(ix != -1){
                     moves.insert(make_pair(ix, iy));
@@ -206,40 +237,6 @@ bool inUpperBound(int x, int y, int dim) {
     return y < dim && x < dim;
 }
 //
-int **apply_move(int **board, pair<int, int> move, int dim, int pl) {
-    int ** new_board = new int *[dim];
-    int op = 1 - pl;
-
-    for (int i = 0; i < dim; i++){
-        new_board[i] = new int[dim];
-        copy(board[i], board[i] + dim, new_board[i]);
-    }
-
-    for (int i = 0; i < 8; i++){
-        int dx = ((i%4) != 0) * (-1 + 2 * (i < 4));
-        int dy = ((i%4) != 2) * (-1 + 2 * (i%7 > 1));// damn, c is great cuz of this kind of math
-
-        int x = move.first + dx;
-        int y = move.second + dx;
-
-        while(inBound(x, y, dim) && new_board[y][x] == op){
-            x = x + dx;
-            y = y + dy;
-        }
-
-        if (inBound(x, y, dim) && new_board[y][x] == pl){
-            x = move.first;
-            y = move.second;
-            while(inBound(x, y, dim) && new_board[y][x] == op){
-                new_board[y][x] = pl;
-                x = x + dx;
-                y = y + dy;
-            }
-        }
-    }
-
-    return new_board;
-}
 
 bool inBound(int x, int y, int dim) { return inUpperBound(x, y, dim) && x >= 0 && y >= 0; }
 
