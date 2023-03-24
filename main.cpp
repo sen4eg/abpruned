@@ -3,8 +3,10 @@
 // does testos mb
 //
 
-int main(){
-//    hello();
+#include "MatrixEvaluator.cpp"
 
+int main(){
+    MatrixEvaluator::HelloPy();
+    MatrixEvaluator::debugBoard(1, 7);
     return 0;
 }

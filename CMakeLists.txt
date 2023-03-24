@@ -20,6 +20,10 @@ set_target_properties(MatrixEvaluator PROPERTIES OUTPUT_NAME "MatrixEval")
 set_target_properties(MatrixEvaluator PROPERTIES SUFFIX ".so")
 target_link_libraries(MatrixEvaluator ${LIBS})
 
+add_executable(test main.cpp)
+set_target_properties(test PROPERTIES OUTPUT_NAME "Debug")
+target_link_libraries(test ${LIBS})
+
 #target_link_libraries(main_exec MatrixEvaluator)
 #
 #set_target_properties(

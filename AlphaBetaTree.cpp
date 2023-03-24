@@ -7,12 +7,42 @@ using namespace std;
 #include <tuple>
 #include <vector>
 #include <set>
+#include <fstream>
+#include <iostream>
 
 #define EMPTY 0
 
 #define OP_MET 4
 #define PL_MET 2
 #define EP_MET 1
+
+int ** make_board(int dim){
+    int **board = new int*[dim];
+    for (int i = 0; i < dim; i++){
+        board[i] = new int[dim];
+    }
+    return board;
+}
+void free_board(int **board, int dim){
+    for(int i = 0; i < dim; i++){
+        free(board[i]);
+        board[i] = nullptr;
+    }
+    free(board);
+    board = nullptr;
+}
+
+void print_board(int **board, int player, int dim){
+//    ofstream BoardFile("board.txt");
+    cerr << "Pl:"<< player << endl;
+    for(int i = 0; i < dim; i++){
+        for(int j = 0; j < dim; j++){
+            cerr << (board[i][j] < 0?"":" ") << board[i][j] << " ";
+        }
+        cerr << endl;
+    }
+//    out.close();
+}
 
 bool minMaxComparator(const double &a, const double &b, bool isMin){
     return (a<b) == isMin;
@@ -37,7 +67,10 @@ pair<int, int> ABprune(int **board, int player, int dim, int depth, double &alph
         v = evaluate(board, player, dim, isMin);
         return make_pair(-1, -1);
     }
+    print_board(board, player, dim);
+
     auto moves = get_all_moves(board, player, dim);
+
     if(moves.size() == 0){
         isMin = !isMin;
         player = 1-player;
@@ -45,8 +78,10 @@ pair<int, int> ABprune(int **board, int player, int dim, int depth, double &alph
         if(moves.size() == 0){
             // game overs here
             v = evaluate(board, player, dim, isMin);
+            return make_pair(-1, -1);
         }
     }
+
     vector<double> move_scores(moves.size());
     int idx = 0;
     double a = alpha, b = beta, v1;
@@ -63,6 +98,7 @@ pair<int, int> ABprune(int **board, int player, int dim, int depth, double &alph
         if(!isMin && a < v1){
             a = v1;
         }
+        free_board(new_board, dim);
     }
 
     v = move_scores[idx];
@@ -76,7 +112,7 @@ double evaluate(int **board, int player, int dim, bool isMin) {
             count[1 + board[y][x]]++;
         }
     }
-    return count[player + 1];
+    return count[player + 1] * 1.0 / count[2 - player];
 }
 
 vector<pair<int, int>> get_all_moves(int ** board, int player, int dim) { // this code chunk ended up to be ugly as hell, but it's my ugly as hell code chunk, also it may be about 2 times faster in 'some' cases then more straight forward implementation
@@ -86,44 +122,58 @@ vector<pair<int, int>> get_all_moves(int ** board, int player, int dim) { // thi
 
     for (int i = 0; i < 4; i++){
         int dx = i > 0, dy = 1 - (i % 3);
-        int x = 0, y = 0 + (dim - 1) * (i == 3);
+        int x = 0, y = 0 + 2 * (i > 1);
+        if(i == 3){
+            y = dim - y;
+        }
+        while(inBound(x + dx, y + dy, dim) ){
 
-        while(inUpperBound(x + dx, y + dy, dim) ){
-            unsigned int flag; //   1 e 2 p 4 o
+            unsigned int flag = 0; //   1 e 2 p 4 o
             int op_x,   op_y;
-            int current = 0;
             int current_place;
-            while(inUpperBound(x, y, dim)){
+            while(inBound(x, y, dim)){
                 int ix = -1, iy = -1;
                 current_place = board[y][x];// xy? test!(notation in python exmpl files) shouldn't be an issue due to symmetricity
+                if(x == 5 && y == 2 || y == dim - 1 && x == 0){
+                    printf("SSS");
+                }
                 process_tile(x, y, OP, PL, flag, op_x, op_y, current_place, ix, iy);
                 if(ix != -1){
                     moves.insert(make_pair(ix, iy));
                 }
-                current++;
                 x = x+dx;
                 y = y+dy;
             }
 
             if(i < 2){
-                if (dx) y = y + dx;
-                else x = x + dy;
+                if (dx){
+                    y = y + dx;
+                    x = 0;
+                }
+                else {
+                    x = x + dy;
+                    y = 0;
+                }
             }else{
+                int nx = x;
+                int ny = y;
+
                 if(i % 2){
-                    if(current < dim){
-                        x = 0;
-                        y = dim - current;
-                    }else{
-                        x = (current % dim) + 1;
+                    if(x == dim){
+                        x = (dim - y) + 1;
                         y = 0;
+                    } else{
+                        x = 0;
+                        y = dim - nx -1;
                     }
                 }else{
-                    if(current < dim){
-                        x = 0;
+                    if(x == dim - 1){
+                        x = y + 1;
+                        y = dim - 1;
                     } else{
-                        x = (current % dim) + 1;
+                        x = 0;
+                        y = nx + 1;
                     }
-                    y = dim - 1;
                 }
             }
         }
@@ -137,18 +187,17 @@ void process_tile(int x, int y, const int OP, const int PL, unsigned int &flag, 
     if (current_place == OP){
         flag = flag | OP_MET;
     } else if (current_place == PL){
-        if(flag & (OP_MET | EP_MET)){ // --110011-- -> -*110011
+        if(flag & OP_MET && flag & EP_MET){ // --110011-- -> -*110011
             ix = op_x;
             iy = op_y;
             flag = 0;
         }
-        flag = flag & (~OP_MET) | PL_MET;
+        flag = PL_MET;
     } else { // EMPTY
-        if (flag & (OP_MET | PL_MET)) { // --110011-- -> --110011*-
+        if (flag & OP_MET && flag & PL_MET) { // --110011-- -> --110011*-
             ix = x, iy = y;
         }
         op_x = x, op_y = y;
-
         flag = EP_MET;
     }
 }
