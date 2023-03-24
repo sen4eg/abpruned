@@ -1,36 +1,17 @@
 //
 // Created by arso on 21.3.23.
 //
-#ifndef OP_MET
 using namespace std;
 #include <string>
 #include <tuple>
 #include <vector>
 #include <set>
-#include <fstream>
 #include <iostream>
 
-#define EMPTY 0
 
 #define OP_MET 4
 #define PL_MET 2
 #define EP_MET 1
-
-int ** make_board(int dim){
-    int **board = new int*[dim];
-    for (int i = 0; i < dim; i++){
-        board[i] = new int[dim];
-    }
-    return board;
-}
-void free_board(int **board, int dim){
-    for(int i = 0; i < dim; i++){
-        free(board[i]);
-        board[i] = nullptr;
-    }
-    free(board);
-    board = nullptr;
-}
 
 void print_board(int board[10][10], int player, int dim){
 //    ofstream BoardFile("board.txt");
@@ -161,7 +142,6 @@ vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim) { /
             y = dim - y;
         }
         while(inBound(x + dx, y + dy, dim) ){
-
             unsigned int flag = 0; //   1 e 2 p 4 o
             int op_x,   op_y;
             int current_place;
@@ -240,5 +220,3 @@ bool inUpperBound(int x, int y, int dim) {
 
 bool inBound(int x, int y, int dim) { return inUpperBound(x, y, dim) && x >= 0 && y >= 0; }
 
-//#endif //MATRIXEVALUATOR_ALPHABETATREE_CPP
-#endif //OP_MET
