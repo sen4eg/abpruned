@@ -9,17 +9,21 @@
 #include <Eigen/Dense>
 #include <fstream>
 
+#define noAct 0
 #define ReLU 1
 #define Sigmoid 2
+const int num_activation_functions = 3;
 
 using namespace std;
+
 class MultiLayerPerceptron {
 public:
     MultiLayerPerceptron(const std::vector<int>& architecture,
                          const std::vector<int>& activation_functions)
             : weights(architecture.size() - 1),
               biases(architecture.size() - 1),
-              activation_functions(activation_functions)
+              activation_functions(activation_functions),
+              architecture(architecture)
     {
         // Initialize biases
         for (int i = 1; i < architecture.size(); i++) {
@@ -35,6 +39,7 @@ public:
         }
     }
 
+
     void save(const std::string& filename) const {
         std::ofstream file(filename, std::ios::binary);
         if (!file) {
@@ -42,11 +47,11 @@ public:
             return;
         }
         // Save architecture
-        const int num_layers = biases.size();
+        const int num_layers = architecture.size();
         file.write(reinterpret_cast<const char*>(&num_layers), sizeof(num_layers));
         for (int i = 0; i < num_layers; i++) {
-            const int num_neurons = biases[i].size();
-            file.write(reinterpret_cast<const char*>(&num_neurons), sizeof(num_neurons));
+            const int layer_count = architecture[i];
+            file.write(reinterpret_cast<const char*>(&layer_count), sizeof(layer_count));
         }
         // Save activation functions
         for (int i = 0; i < activation_functions.size(); i++) {
@@ -77,9 +82,9 @@ public:
         file.read(reinterpret_cast<char*>(&num_layers), sizeof(num_layers));
         std::vector<int> architecture(num_layers);
         for (int i = 0; i < num_layers; i++) {
-            int num_neurons;
-            file.read(reinterpret_cast<char*>(&num_neurons), sizeof(num_neurons));
-            architecture[i] = num_neurons;
+            int numLayers;
+            file.read(reinterpret_cast<char*>(&numLayers), sizeof(numLayers));
+            architecture[i] = numLayers;
         }
         // Load activation functions
         std::vector<int> activation_functions(num_layers-1);
@@ -115,11 +120,38 @@ public:
         }
         return output;
     }
+    void mutate(double mutation_factor, int radiation) {
+        // Adjust weights and biases
+        for (int i = 0; i < weights.size(); i++) {
+            weights[i] += mutation_factor * Eigen::MatrixXd::Random(weights[i].rows(), weights[i].cols());
+            biases[i] += mutation_factor * Eigen::VectorXd::Random(biases[i].size());
+        }
+
+        // Adjust architecture (if radiation is non-zero)
+        if (radiation > 0) {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_real_distribution<double> dist(0.0, 1.0);
+//            std::bernoulli_distribution drop_neuron(0.1 * mutation_factor);
+//            std::bernoulli_distribution add_neuron(0.1 * mutation_factor);
+            std::bernoulli_distribution change_activation(0.1);
+            for (int i = 0; i < architecture.size() - 1; i++) {
+                // Drop neuron
+                // Change activation function
+                if (dist(gen) < change_activation(gen) ) {
+                    const int current_af = activation_functions[i];
+                    const int new_af = (current_af + 1) % num_activation_functions;
+                    activation_functions[i] = new_af;
+                }
+            }
+        }
+    }
 
 private:
     std::vector<Eigen::MatrixXd> weights;
     std::vector<Eigen::VectorXd> biases;
     std::vector<int> activation_functions;
+    std::vector<int> architecture;
 };
 
 
