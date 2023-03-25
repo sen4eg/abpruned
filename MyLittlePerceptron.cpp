@@ -7,7 +7,9 @@
 #include <random>
 #include <cmath>
 #include <Eigen/Dense>
+#include <Eigen/Core>
 #include <fstream>
+#include <eigen3/Eigen/Core>
 
 #define noAct 0
 #define ReLU 1
@@ -145,6 +147,19 @@ public:
                 }
             }
         }
+    }
+
+    double evaluateBoard(int board[10][10], int player, int dim) {
+        Eigen::VectorXd bord(dim*dim);
+        for (int i = 0; i < dim; i++) {
+            for (int j = 0; j < dim; j++) {
+                int cur = board[i][j];
+                int put = cur >= 0 ? (1) & (cur == player) : -1;
+                bord(i*dim + j) = put; // insert the value from the array into the vector
+            }
+        }
+
+        return forward(bord)(0);
     }
 
 private:

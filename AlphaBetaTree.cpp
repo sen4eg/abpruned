@@ -7,6 +7,7 @@ using namespace std;
 #include <vector>
 #include <set>
 #include <iostream>
+#include "MyLittlePerceptron.cpp"
 
 
 #define OP_MET 4
@@ -41,13 +42,15 @@ bool inBound(int x, int y, int i);
 
 vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim);
 
-double evaluate(int board[10][10], int player, int dim, bool isMin);
+double evaluate(int board[10][10], int player, int dim, bool isMin, MultiLayerPerceptron *pPerceptron);
 
 void apply_move(int oldBoard[10][10], int new_board[10][10], pair<int, int> move, int dim, int player);
 
-void ABprune(int board[10][10], int player, int dim, int depth, double &alpha, double &beta, double &v, pair<int, int> &res, bool isMin = false){
+void
+ABprune(int board[10][10], int player, int dim, int depth, double &alpha, double &beta, double &v, pair<int, int> &res,
+        bool isMin, MultiLayerPerceptron *pPerceptron) {
     if(!depth){
-        v = evaluate(board, player, dim, isMin);
+        v = evaluate(board, player, dim, isMin, pPerceptron);
         return;
     }
 //    print_board(board, player, dim);
@@ -59,7 +62,7 @@ void ABprune(int board[10][10], int player, int dim, int depth, double &alpha, d
         moves = get_all_moves(board, player ^ isMin, dim);
         if(moves.size() == 0){
             // game overs here
-            v = evaluate(board, player, dim, isMin);
+            v = evaluate(board, player, dim, isMin, pPerceptron);
             return;
         }
     }
@@ -70,9 +73,12 @@ void ABprune(int board[10][10], int player, int dim, int depth, double &alpha, d
     for (int i = 0; i < moves.size() && b >= a; i++){
 //        int **new_board = apply_move(board, moves[i], dim, player ^ isMin);
         int new_board[10][10];
+//        print_board
+        print_board(board, dim, dim);
         apply_move(board, new_board, moves[i], dim, player ^ isMin);
+        print_board(new_board, dim, dim);
         pair<int, int> temp;
-        ABprune(new_board, player, dim, depth-1, a, b, v1, temp, !isMin);
+        ABprune(new_board, player, dim, depth - 1, a, b, v1, temp, !isMin, pPerceptron);
         move_scores[i] = v1;
         if(minMaxComparator(v1, move_scores[idx], isMin)){
             idx = i;
@@ -84,7 +90,7 @@ void ABprune(int board[10][10], int player, int dim, int depth, double &alpha, d
             a = v1;
         }
     }
-
+    cout << "IDX: " << idx << " PPOS:" << moves.size() << endl;
     v = move_scores[idx];
     res = moves[idx];
 }
@@ -94,13 +100,15 @@ void apply_move(int oldBoard[10][10], int new_board[10][10], pair<int, int> move
     for (int i = 0; i < dim; i++){
         copy(oldBoard[i], oldBoard[i] + dim, new_board[i]);
     }
+    print_board(oldBoard, dim, dim);
+    print_board(new_board, dim, dim);
 
     for (int i = 0; i < 8; i++){
         int dx = ((i%4) != 0) * (-1 + 2 * (i < 4));
         int dy = ((i%4) != 2) * (-1 + 2 * (i%7 > 1));// damn, c is great cuz of this kind of math
 
         int x = move.first + dx;
-        int y = move.second + dx;
+        int y = move.second + dy;
 
         while(inBound(x, y, dim) && new_board[y][x] == op){
             x = x + dx;
@@ -120,7 +128,12 @@ void apply_move(int oldBoard[10][10], int new_board[10][10], pair<int, int> move
 
 }
 
-double evaluate(int board[10][10], int player, int dim, bool isMin) {
+double evaluate(int board[10][10], int player, int dim, bool isMin, MultiLayerPerceptron *pPerceptron) {
+    if (pPerceptron != nullptr){
+        double res = pPerceptron->evaluateBoard(board, player, dim);
+//        cout<< "res:" << res<<endl;
+        return res;
+    }
     int count[3] = {0};
     for (int y = 0; y < dim; y++){
         for(int x = 0; x < dim; x++){
