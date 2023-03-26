@@ -98,19 +98,36 @@ public:
         return ml_agent != nullptr;
     }
 
-    ~MatrixEvaluator(){
-        ofstream BoardFile("board-as.txt");
+    void save_board(string path) const {
+        ofstream BoardFile(path);
         for(int i = 0; i < dim; i++){
             for(int j = 0; j < dim; j++){
                 BoardFile << board[i][j] << " ";
             }
             BoardFile << endl;
         }
+        BoardFile.close();
+    }
+
+    MultiLayerPerceptron * getAgent(){
+        return ml_agent;
+    }
+
+    void gene_sting(MatrixEvaluator me){
+        this->ml_agent = new MultiLayerPerceptron(*(me.getAgent()));
+    }
+
+    void save_gene(string path){
+        ml_agent->save(path);
+    }
+
+    ~MatrixEvaluator(){
+        save_board("board-as.txt");
         free(ml_agent);
     }
 private:
 //    double weight_matrix[][];
-    vector<vector<double>> weights;
+//    vector<vector<double>> weights;
     MultiLayerPerceptron* ml_agent;
     int board[10][10];
     int dim;
@@ -125,5 +142,8 @@ BOOST_PYTHON_MODULE(MatrixEval){
             .def("createMLAgent", &MatrixEvaluator::createMLAgent)
             .def("isMLassigned", &MatrixEvaluator::isMLassigned)
             .def("mutate", &MatrixEvaluator::mutate)
+            .def("save_board", &MatrixEvaluator::save_board)
+            .def("gene_sting", &MatrixEvaluator::gene_sting)
+            .def("save_gene", &MatrixEvaluator::save_gene)
             ;
 }

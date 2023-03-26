@@ -145,7 +145,7 @@ double evaluate(int board[10][10], int player, int dim, bool isMin, MultiLayerPe
 vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim) { // this code chunk ended up to be ugly as hell, but it's my ugly as hell code chunk, also it may be about 2 times faster in 'some' cases then more straight forward implementation
 //    vector<tuple<int, int>> res;
     set<pair<int, int>> moves;
-    print_board(board, player, dim);
+//    print_board(board, player, dim);
     const int OP = 1 - player, PL = player;
     for (int i = 0; i < 4; i++){
         int dx = i > 0, dy = 1 - (i % 3);
@@ -157,7 +157,7 @@ vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim) { /
             unsigned int flag = 0; //   1 e 2 p 4 o
             int op_x,   op_y;
             int current_place;
-            cout << "FROM: " << x << ":" << y << " ";
+//            cout << "FROM: " << x << ":" << y << " ";
 
             while(inBound(x, y, dim)){
                 int ix = -1, iy = -1;
@@ -169,7 +169,7 @@ vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim) { /
                 x = x+dx;
                 y = y+dy;
             }
-            cout << "TO: " << x << ":" << y << " " << endl;
+//            cout << "TO: " << x << ":" << y << " " << endl;
 
             if(i < 2){
                 if (dx){

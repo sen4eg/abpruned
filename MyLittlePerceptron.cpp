@@ -20,6 +20,12 @@ using namespace std;
 
 class MultiLayerPerceptron {
 public:
+    MultiLayerPerceptron(const MultiLayerPerceptron& other)
+            : weights(other.weights),
+              biases(other.biases),
+              activation_functions(other.activation_functions),
+              architecture(other.architecture){};
+
     MultiLayerPerceptron(const std::vector<int>& architecture,
                          const std::vector<int>& activation_functions)
             : weights(architecture.size() - 1),
@@ -173,6 +179,6 @@ private:
 
 /**
 * std::vector<int> architecture = {2, 4, 1};
-std::vector<int> activations = {1, 2}; // 1 for ReLU, 2 for sigmoid
-MultiLayerPerceptron mlp(architecture, activations);
+* std::vector<int> activations = {1, 2}; // 1 for ReLU, 2 for sigmoid
+* MultiLayerPerceptron mlp(architecture, activations);
 */
