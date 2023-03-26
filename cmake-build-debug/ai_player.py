@@ -9,13 +9,13 @@ class MyPlayer():
         self.opponent_color = opponent_color
         self.board_size = board_size
         self.me = meh.MatrixEvaluator()
-        self.me.createMLAgent([64,32,16,1],[0,0,1])
+        # self.me.createMLAgent([64,32,16,1],[0,0,1])
 
 
     def move(self,board):
         # TODO: write you method
         # you can implement auxiliary fucntions, of course
-        return self.me.calculateBestMove(board, self.my_color, 3)
+        return self.me.calculateBestMove(board, self.my_color, 4)
 
     def __is_correct_move(self, move, board):
         dx = [-1, -1, -1, 0, 1, 1, 1, 0]

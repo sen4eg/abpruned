@@ -58,13 +58,14 @@ ABprune(int board[10][10], int player, int dim, int depth, double &alpha, double
     vector<pair<int, int>> moves = get_all_moves(board, player, dim);
 
     if(moves.size() == 0){
-        isMin = !isMin;
-        moves = get_all_moves(board, player ^ isMin, dim);
         if(moves.size() == 0){
             // game overs here
             v = evaluate(board, player, dim, isMin, pPerceptron);
-            return;
+        }else{
+            pair<int, int> temp;
+            ABprune(board, player, dim, depth, alpha, beta, v, temp, !isMin, pPerceptron); // ensure not move like inverted node, shouldn't happen
         }
+        return;
     }
 
     vector<double> move_scores(moves.size());
@@ -74,9 +75,9 @@ ABprune(int board[10][10], int player, int dim, int depth, double &alpha, double
 //        int **new_board = apply_move(board, moves[i], dim, player ^ isMin);
         int new_board[10][10];
 //        print_board
-        print_board(board, dim, dim);
+//        print_board(board, dim, dim);
         apply_move(board, new_board, moves[i], dim, player ^ isMin);
-        print_board(new_board, dim, dim);
+//        print_board(new_board, dim, dim);
         pair<int, int> temp;
         ABprune(new_board, player, dim, depth - 1, a, b, v1, temp, !isMin, pPerceptron);
         move_scores[i] = v1;
@@ -90,7 +91,7 @@ ABprune(int board[10][10], int player, int dim, int depth, double &alpha, double
             a = v1;
         }
     }
-    cout << "IDX: " << idx << " PPOS:" << moves.size() << endl;
+//    cout << "IDX: " << idx << " PPOS:" << moves.size() << endl;
     v = move_scores[idx];
     res = moves[idx];
 }
@@ -100,8 +101,6 @@ void apply_move(int oldBoard[10][10], int new_board[10][10], pair<int, int> move
     for (int i = 0; i < dim; i++){
         copy(oldBoard[i], oldBoard[i] + dim, new_board[i]);
     }
-    print_board(oldBoard, dim, dim);
-    print_board(new_board, dim, dim);
 
     for (int i = 0; i < 8; i++){
         int dx = ((i%4) != 0) * (-1 + 2 * (i < 4));
@@ -118,7 +117,7 @@ void apply_move(int oldBoard[10][10], int new_board[10][10], pair<int, int> move
         if (inBound(x, y, dim) && new_board[y][x] == pl){
             x = move.first;
             y = move.second;
-            while(inBound(x, y, dim) && new_board[y][x] == op){
+            while(inBound(x, y, dim) && new_board[y][x] != pl){
                 new_board[y][x] = pl;
                 x = x + dx;
                 y = y + dy;
@@ -146,8 +145,8 @@ double evaluate(int board[10][10], int player, int dim, bool isMin, MultiLayerPe
 vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim) { // this code chunk ended up to be ugly as hell, but it's my ugly as hell code chunk, also it may be about 2 times faster in 'some' cases then more straight forward implementation
 //    vector<tuple<int, int>> res;
     set<pair<int, int>> moves;
+    print_board(board, player, dim);
     const int OP = 1 - player, PL = player;
-
     for (int i = 0; i < 4; i++){
         int dx = i > 0, dy = 1 - (i % 3);
         int x = 0, y = 0 + 2 * (i > 1);
@@ -158,6 +157,8 @@ vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim) { /
             unsigned int flag = 0; //   1 e 2 p 4 o
             int op_x,   op_y;
             int current_place;
+            cout << "FROM: " << x << ":" << y << " ";
+
             while(inBound(x, y, dim)){
                 int ix = -1, iy = -1;
                 current_place = board[y][x];// xy? test!(notation in python exmpl files) shouldn't be an issue due to symmetricity
@@ -168,6 +169,7 @@ vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim) { /
                 x = x+dx;
                 y = y+dy;
             }
+            cout << "TO: " << x << ":" << y << " " << endl;
 
             if(i < 2){
                 if (dx){
@@ -180,7 +182,7 @@ vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim) { /
                 }
             }else{
                 int nx = x;
-                int ny = y;
+//                int ny = y;
 
                 if(i % 2){
                     if(x == dim){
@@ -191,12 +193,12 @@ vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim) { /
                         y = dim - nx -1;
                     }
                 }else{
-                    if(x == dim - 1){
-                        x = y + 1;
+                    if(x == dim){
+                        x = y + 2;
                         y = dim - 1;
                     } else{
                         x = 0;
-                        y = nx + 1;
+                        y = nx;
                     }
                 }
             }

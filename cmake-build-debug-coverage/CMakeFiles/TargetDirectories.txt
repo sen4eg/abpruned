@@ -1,0 +1,4 @@
+/home/arso/CLionProjects/MatrixEvaluator/cmake-build-debug-coverage/CMakeFiles/MatrixEvaluator.dir
+/home/arso/CLionProjects/MatrixEvaluator/cmake-build-debug-coverage/CMakeFiles/test.dir
+/home/arso/CLionProjects/MatrixEvaluator/cmake-build-debug-coverage/CMakeFiles/edit_cache.dir
+/home/arso/CLionProjects/MatrixEvaluator/cmake-build-debug-coverage/CMakeFiles/rebuild_cache.dir
