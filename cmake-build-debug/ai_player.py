@@ -15,7 +15,7 @@ class MyPlayer():
     def move(self,board):
         # TODO: write you method
         # you can implement auxiliary fucntions, of course
-        return self.me.calculateBestMove(board, self.my_color, 4)
+        return self.me.calculateBestMove(board, self.my_color, 1)
 
     def __is_correct_move(self, move, board):
         dx = [-1, -1, -1, 0, 1, 1, 1, 0]
@@ -55,9 +55,3 @@ class MyPlayer():
             print('No possible move!')
             return None
         return valid_moves
-
-class AlphaBettaGammaStrich():
-    def __init__(self, move, board, player):
-        self.move = move
-        self.board = board
-        self.player = player

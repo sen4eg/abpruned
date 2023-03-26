@@ -100,6 +100,8 @@ class HeadlessReversiCreator(object):
 
             else:
                 correct_finish = False
+                if getattr(self.current_player, 'me', None) is not None:
+                    self.current_player.me.save_board("Error-" + str(int(time_tot)) + "-"+ str(int(moveTime))+".txt")
                 break
 
             self.change_player()
@@ -108,6 +110,8 @@ class HeadlessReversiCreator(object):
 
             # self.board.print_board()
         # print(f"Timeforgame: {time_tot}")
+        if(not correct_finish):
+            return (0.3, 0.3)
         return self.getFinalScore(correct_finish)
 
     def change_player(self):
@@ -129,8 +133,8 @@ class HeadlessReversiCreator(object):
                     p1Stones += 1
                 if self.board.board[x][y] == 1:
                     p2Stones += 1
-        if not correct:
-            print("AAAAilldoitlater")
+        # if not correct:
+        #     print("AAAAilldoitlater")
         return (p1Stones, p2Stones)
     def printFinalScore(self):
         p1Stones = 0
@@ -188,7 +192,7 @@ def runTourment(players):
 
             game = HeadlessReversiCreator(players[i], p1_color, players[j], p2_color, board_size)
             res = game.play_game_silent()
-            print(res)
+            # print(res)
             if res[0] == res[1]:
                 updateFit(players[j], 0.5)
                 updateFit(players[i], 0.5)
@@ -219,22 +223,36 @@ def print_report(players, epoch):
     for player in players:
         print(f"{player.name}:{player.fit}")
 
+
+def save_agentos(players, epoch):
+    count = 0
+    for player in players:
+        if getattr(player, 'me', None) is not None:
+
+            name = "nn/EP" + str(epoch) + "_" + player.name + str(count) + ".bin"
+
+            player.me.save_gene(name)
+            count+=1
+
+
 if __name__ == "__main__":
     # (choices,args) = getopt.getopt(sys.argv[1:],"")
     p1_color = 0
     p2_color = 1
     board_size = 8
 
-    epoch_count = 2000
+    epoch_count = 10000
     printout_thre = 10
 
     importsCorrect = True
     colors = [p1_color, p2_color]
-    players =  produce_players(ai_player, 10, board_size, [64,32,16,1],[0,0,1], "DEB")
-    players += produce_players(diemasus, 10, board_size, None, [0,1,2], "GRA")
-    # players += produce_players(ai_player, 10, board_size, [64,32,16,1],[1,1,2], "BED")
-    # players += produce_players(ai_player, 10, board_size, [64,32,16,1],[1,2,1], "BED")
-    # players += produce_players(ai_player, 10, board_size, [64,32,16,1],[1,2,2], "BED")
+    players =  produce_players(ai_player, 2, board_size, [64,32,16,1],[0,0,1], "AAB1")
+    players += produce_players(diemas, 2, board_size, None, [0,1,2], "DIE")
+    players += produce_players(ai_player, 2, board_size, [64,32,16,1],[1,1,2], "BBC1")
+    players += produce_players(ai_player, 2, board_size, [64,32,16,1],[1,2,1], "BCB1")
+    players += produce_players(ai_player, 2, board_size, [64,32,16,1],[1,2,2], "BCC1")
+    players += produce_players(ai_player, 2, board_size, [64,32,16,1],[0,0,2], "AAC1")
+    # players += produce_players(diemasus, 10, board_size, None, [], "SUS")
 
     # players += produce_players(ai_player, 5, board_size, [64,16,32,16,1], "OWO")
     # players += produce_players(ai_player, 5, board_size, [64,48,32,16,1], "GRA")
@@ -248,7 +266,8 @@ if __name__ == "__main__":
         nulifyFit()
         runTourment(players)
         players.sort(key=lambda x: -x.fit)
-        if (epoch_count % printout_thre) == 0 :
+        if (i % printout_thre) == 0:
             print_report(players, i)
+            save_agentos(players, i)
         players = genocode(players)
 

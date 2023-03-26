@@ -9,7 +9,7 @@ import getopt
 import sys
 import player_creator
 
-BOARD_SIZE = 8
+BOARD_SIZE = 10
 MAX_TIME_FOR_MOVE = 5
 
 class ReversiCreator(object):
