@@ -17,19 +17,19 @@ using namespace std;
 class MatrixEvaluator{
 public:
     MatrixEvaluator(){
-        ml_agent = nullptr;
+//        ml_agent = nullptr;
     }
 
     pair<int,int> getBestMove(int board[10][10], int player, int d, int depth){
-        ofstream BoardFile("board.txt");
-        for(int i = 0; i < d; i++){
-            for(int j = 0; j < d; j++){
-                BoardFile << board[i][j] << " ";
-            }
-            BoardFile << endl;
-        }
+//        ofstream BoardFile("board.txt");
+//        for(int i = 0; i < d; i++){
+//            for(int j = 0; j < d; j++){
+//                BoardFile << board[i][j] << " ";
+//            }
+//            BoardFile << endl;
+//        }
 
-        BoardFile.close();
+//        BoardFile.close();
         double alp = -INF;
         double bet = INF;
         double v;
@@ -84,20 +84,15 @@ public:
         return boost::python::make_tuple(p.second, p.first);
     }
 
-    void createMLAgent(boost::python::list archi, boost::python::list activ){
-        vector<int> arrc((boost::python::stl_input_iterator<int>(archi)),boost::python::stl_input_iterator<int>());
-        vector<int> act((boost::python::stl_input_iterator<int>(activ)),boost::python::stl_input_iterator<int>());
 
-        ml_agent = new MultiLayerPerceptron(arrc, act);
-    }
 
-    void mutate(double factor){
-        if( ml_agent != nullptr ) ml_agent->mutate(factor, 0);
-    }
-
-    bool isMLassigned(){
-        return ml_agent != nullptr;
-    }
+//    void mutate(double factor){
+//        if( ml_agent != nullptr ) ml_agent->mutate(factor, 0);
+//    }
+//
+//    bool isMLassigned(){
+//        return ml_agent != nullptr;
+//    }
 
     void save_board(string path) const {
         ofstream BoardFile(path);
@@ -109,27 +104,27 @@ public:
         }
         BoardFile.close();
     }
-
-    MultiLayerPerceptron * getAgent(){
-        return ml_agent;
-    }
+//
+//    MultiLayerPerceptron * getAgent(){
+////        return ml_agent;
+//    }
 
     void gene_sting(MatrixEvaluator me){
-        this->ml_agent = new MultiLayerPerceptron(*(me.getAgent()));
+//        this->ml_agent = new MultiLayerPerceptron(*(me.getAgent()));
     }
 
     void save_gene(string path){
-        ml_agent->save(path);
+//        ml_agent->save(path);
     }
 
     ~MatrixEvaluator(){
 //        save_board("board-as.txt");
-        free(ml_agent);
+//        free(ml_agent);
     }
 private:
 //    double weight_matrix[][];
 //    vector<vector<double>> weights;
-    MultiLayerPerceptron* ml_agent;
+//    MultiLayerPerceptron* ml_agent;
     int board[10][10];
     int dim;
 //    static
@@ -140,9 +135,9 @@ BOOST_PYTHON_MODULE(MatrixEval){
     class_<MatrixEvaluator>("MatrixEvaluator", init<>())
             .def("hi", &MatrixEvaluator::HelloPy)
             .def("calculateBestMove", &MatrixEvaluator::calculateBestMove)
-            .def("createMLAgent", &MatrixEvaluator::createMLAgent)
-            .def("isMLassigned", &MatrixEvaluator::isMLassigned)
-            .def("mutate", &MatrixEvaluator::mutate)
+//            .def("createMLAgent", &MatrixEvaluator::createMLAgent)
+//            .def("isMLassigned", &MatrixEvaluator::isMLassigned)
+//            .def("mutate", &MatrixEvaluator::mutate)
             .def("save_board", &MatrixEvaluator::save_board)
             ;
 }

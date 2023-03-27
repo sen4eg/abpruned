@@ -328,7 +328,7 @@ double evalOn(int board[10][10], int raw_income, int dim, bool isGo, int player,
     return reward_matrix[move.second][move.first] + raw_income;//*(res - pres)*(res-pres);
 }
 
-double recursiveEvalv(int board[10][10], int depth, int player, pair<int, int> move, bool isMin, int dim){
+double recursiveEvalv(int board[10][10], int depth, int player, pair<int, int> move, bool isMin, int dim, double alp, double bet){
     int board_after[10][10];
 
     for(int i = 0; i < dim; i++){
@@ -338,19 +338,30 @@ double recursiveEvalv(int board[10][10], int depth, int player, pair<int, int> m
     int inc = 0;
     apply_move(board, board_after, move, dim, player, true, inc);
     double v;
+    double a = alp;
+    double b = bet;
     double jb = 0;
     v = evalOn(board, inc, dim, false, player, move);
     if(depth != 0){
-        vector<pair<int, int>> moves = get_all_moves(board_after, 1-player, dim);
-        for (int i = 0; i < moves.size(); i++){
-            double lv = recursiveEvalv(board_after, depth-1, 1-player, moves[i], isMin, dim) * (isMin?-1:1);
+        vector<pair<int, int>> moves = get_all_moves(board_after, isMin? 1-player:player, dim);
+        for (int i = 0; i < moves.size() && b>=a; i++){
+            double lv = recursiveEvalv(board_after, depth-1, player, moves[i], !isMin, dim, a, b) * (isMin?-1:1);
             if(i == 0 || minMaxComparator(lv, jb, isMin)){
                 jb = lv;
             }
+            if(isMin && b > lv){
+                b = lv;
+            }
+            if(!isMin && a < lv){
+                a = lv;
+
+            }
         }
+
         if(moves.size()==0){
 
             return 0; 
+
         }
         v += jb * LONG_TERM_FACTOR;
     }
@@ -361,19 +372,25 @@ void findBestMove(int board[10][10], int board_before[10][10], int depth, int pl
                   double &alp, double &bt, double &vlv, pair<int, int> &move, int dim){
 
     vector<pair<int, int>> moves = get_all_moves(board, player, dim);
-    print_board(board, player, dim);
+//    print_board(board, player, dim);
     vector<double> move_scores(moves.size());
     int idx = 0;
-    int new_board[10][10];
-
-    for (int i = 0; i < moves.size(); i++){
+    double a = alp;
+    double b = bt;
+    for (int i = 0; i < moves.size() && b >= a; i++){
         double lv;
         pair<int, int> t;
-        lv = recursiveEvalv(board, depth-1, player, moves[i], isMin, dim);
+        lv = recursiveEvalv(board, depth-1, player, moves[i], isMin, dim, alp, bt);
 
         move_scores[i] = lv;
         if(minMaxComparator(lv, move_scores[idx], isMin)){
             idx = i;
+        }
+        if(isMin && b > lv){
+            b = lv;
+        }
+        if(!isMin && a < lv){
+            a = lv;
         }
     }
     move = moves[idx];
