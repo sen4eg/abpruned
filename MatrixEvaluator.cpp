@@ -34,8 +34,8 @@ public:
         double bet = INF;
         double v;
         pair<int, int> res;
-        ABprune(board, player, d, depth, alp, bet, v, res, false, ml_agent);
-
+//        ABprune(board, player, d, depth, alp, bet, v, res, false, ml_agent);
+        findBestMove(board, nullptr, depth, player, false, alp, bet, v, res, d);
         return res;
     }
 
@@ -64,7 +64,8 @@ public:
         double v;
 
         pair<int,int> res;
-        ABprune(board, player, d, depth, alp, bet, v, res, false, ml_agent);
+//        ABprune(board, player, d, depth, alp, bet, v, res, false, ml_agent);
+        findBestMove(board, nullptr, depth, player, false, alp, bet, v, res, d);
 
         cout << res.first << " " << res.second << endl;
     }
@@ -122,7 +123,7 @@ public:
     }
 
     ~MatrixEvaluator(){
-        save_board("board-as.txt");
+//        save_board("board-as.txt");
         free(ml_agent);
     }
 private:
@@ -143,7 +144,5 @@ BOOST_PYTHON_MODULE(MatrixEval){
             .def("isMLassigned", &MatrixEvaluator::isMLassigned)
             .def("mutate", &MatrixEvaluator::mutate)
             .def("save_board", &MatrixEvaluator::save_board)
-            .def("gene_sting", &MatrixEvaluator::gene_sting)
-            .def("save_gene", &MatrixEvaluator::save_gene)
             ;
 }

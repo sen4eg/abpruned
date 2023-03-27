@@ -15,7 +15,7 @@ class MyPlayer():
     def move(self,board):
         # TODO: write you method
         # you can implement auxiliary fucntions, of course
-        return self.me.calculateBestMove(board, self.my_color, 1)
+        return self.me.calculateBestMove(board, self.my_color, 5)
 
     def __is_correct_move(self, move, board):
         dx = [-1, -1, -1, 0, 1, 1, 1, 0]
