@@ -4,7 +4,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 find_package(Boost REQUIRED COMPONENTS python)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -12,15 +11,25 @@ find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 add_definitions(-DBOOST_PYTHON_STATIC_LIB)
-find_package(Eigen3 REQUIRED)
 #set(EIGEN3_INCLUDE_DIR /usr/include/eigen3/Eigen)
-include_directories(${Eigen3_INCLUDE_DIRS})
-set(LIBS ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} Eigen3::Eigen)
-add_library(MatrixEvaluator SHARED MatrixEvaluator.cpp )
+link_directories("/usr/share/boost/lib")
+set(LIBS ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+
+set(Boost_PYTHON_LIBRARY "/usr/lib/x86_64-linux-gnu/libboost_python310.a")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++")
+
+add_library(MatrixEvaluator SHARED  MatrixEvaluator.cpp )
 set_target_properties(MatrixEvaluator PROPERTIES PREFIX "")
 set_target_properties(MatrixEvaluator PROPERTIES OUTPUT_NAME "MatrixEval")
 set_target_properties(MatrixEvaluator PROPERTIES SUFFIX ".so")
-target_link_libraries(MatrixEvaluator ${LIBS})
+target_link_libraries(MatrixEvaluator PUBLIC ${LIBS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os")
+#set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --gc-sections")
+#set(Boost_PYTHON_LIBRARY "/path/to/libboost_python.a")
+#set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${PYTHON_LIBRARIES}")
+
+# Link the library with required libraries
+#target_link_libraries(MatrixEvaluator ${LIBS})
 
 add_executable(test main.cpp)
 set_target_properties(test PROPERTIES OUTPUT_NAME "Debug")

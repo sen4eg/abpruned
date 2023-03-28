@@ -1,4 +1,4 @@
-import ai_player
+import player
 import reverso
 import diemasus
 
@@ -218,7 +218,7 @@ class ReversiCreator(object):
 
 if __name__ == "__main__": 
     (choices,args) = getopt.getopt(sys.argv[1:],"")
-    players_dict = {'revers':reverso.MyPlayer, 'depthfish':ai_player.MyPlayer, 'random': diemasus.MyPlayer}
+    players_dict = {'revers':reverso.MyPlayer, 'depthfish':player.MyPlayer, 'random': diemasus.MyPlayer}
     #players_dict = {'random':random_player.MyPlayer,'greedy':greedy_player.MyPlayer,'alphabeta':alphabeta_player.MyPlayer,'heuristic':heuristic_player.MyPlayer}
     # players_dict = {}
     for arg in args:

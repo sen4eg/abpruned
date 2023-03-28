@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "Debug"
+			"path" : "MatrixEval.so"
 		}
 	],
 	"backtrace" : 1,
@@ -10,7 +10,8 @@
 	{
 		"commands" : 
 		[
-			"add_executable",
+			"add_library",
+			"link_directories",
 			"target_link_libraries",
 			"add_definitions",
 			"include_directories"
@@ -27,25 +28,31 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 25,
+				"line" : 21,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 27,
+				"line" : 15,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 14,
+				"line" : 25,
 				"parent" : 0
 			},
 			{
 				"command" : 3,
 				"file" : 0,
-				"line" : 12,
+				"line" : 13,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 11,
 				"parent" : 0
 			}
 		]
@@ -56,7 +63,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "--coverage -g -fdiagnostics-color=always"
+					"fragment" : "--coverage -Os -g -fPIC -fdiagnostics-color=always"
 				},
 				{
 					"fragment" : "-std=c++17"
@@ -65,28 +72,26 @@
 			"defines" : 
 			[
 				{
-					"backtrace" : 2,
+					"backtrace" : 3,
 					"define" : "BOOST_ALL_NO_LIB"
 				},
 				{
-					"backtrace" : 2,
+					"backtrace" : 3,
 					"define" : "BOOST_PYTHON_DYN_LINK"
 				},
 				{
-					"backtrace" : 3,
+					"backtrace" : 4,
 					"define" : "BOOST_PYTHON_STATIC_LIB"
+				},
+				{
+					"define" : "MatrixEvaluator_EXPORTS"
 				}
 			],
 			"includes" : 
 			[
 				{
-					"backtrace" : 4,
+					"backtrace" : 5,
 					"path" : "/usr/include/python3.10"
-				},
-				{
-					"backtrace" : 2,
-					"isSystem" : true,
-					"path" : "/usr/include/eigen3"
 				}
 			],
 			"language" : "CXX",
@@ -104,34 +109,39 @@
 			]
 		}
 	],
-	"id" : "test::@6890427a1f51a3e7e1df",
+	"id" : "MatrixEvaluator::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "--coverage -g",
-				"role" : "flags"
-			},
-			{
-				"fragment" : "",
+				"fragment" : "-static-libgcc -static-libstdc++",
 				"role" : "flags"
 			},
 			{
 				"backtrace" : 2,
+				"fragment" : "-L/usr/share/boost/lib",
+				"role" : "libraryPath"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/usr/share/boost/lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
 				"fragment" : "/usr/lib/x86_64-linux-gnu/libboost_python310.so.1.74.0",
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 2,
+				"backtrace" : 3,
 				"fragment" : "/usr/lib/x86_64-linux-gnu/libpython3.10.so",
 				"role" : "libraries"
 			}
 		],
 		"language" : "CXX"
 	},
-	"name" : "test",
-	"nameOnDisk" : "Debug",
+	"name" : "MatrixEvaluator",
+	"nameOnDisk" : "MatrixEval.so",
 	"paths" : 
 	{
 		"build" : ".",
@@ -152,9 +162,9 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "main.cpp",
+			"path" : "MatrixEvaluator.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],
-	"type" : "EXECUTABLE"
+	"type" : "SHARED_LIBRARY"
 }

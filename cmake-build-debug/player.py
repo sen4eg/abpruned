@@ -5,7 +5,7 @@ class MyPlayer():
 
     def __init__(self, my_color,opponent_color, board_size=8):
         self.name = 'vaginars'
-        self.my_color = my_color
+        self.my_color = my_color        
         self.opponent_color = opponent_color
         self.board_size = board_size
         self.me = meh.MatrixEvaluator()
