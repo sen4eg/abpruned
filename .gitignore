@@ -10,3 +10,5 @@ cmake-build-debug/Debug
 *.bin
 main
 *exec
+*.zip
+cmake-build-debug-coverage

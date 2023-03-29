@@ -15,17 +15,17 @@ using namespace std;
 #define EP_MET 1
 #define LONG_TERM_FACTOR 0.8
 
-void print_board(int board[10][10], int player, int dim){
-//    ofstream BoardFile("board.txt");
-    cerr << "Pl:"<< player << endl;
-    for(int i = 0; i < dim; i++){
-        for(int j = 0; j < dim; j++){
-            cerr << (board[i][j] < 0?"":" ") << board[i][j] << " ";
-        }
-        cerr << endl;
-    }
-//    out.close();
-}
+//void print_board(int board[10][10], int player, int dim){
+////    ofstream BoardFile("board.txt");
+//    cerr << "Pl:"<< player << endl;
+//    for(int i = 0; i < dim; i++){
+//        for(int j = 0; j < dim; j++){
+//            cerr << (board[i][j] < 0?"":" ") << board[i][j] << " ";
+//        }
+//        cerr << endl;
+//    }
+////    out.close();
+//}
 
 bool minMaxComparator(const double &a, const double &b, bool isMin){
     return (a>b) != isMin;
@@ -45,7 +45,7 @@ vector<pair<int, int>> get_all_moves(int board[10][10], int player, int dim);
 
 //double evaluate(int board[10][10], int player, int dim, bool isMin, MultiLayerPerceptron *pPerceptron, bool b);
 
-void apply_move(int oldBoard[10][10], int new_board[10][10], pair<int, int> move, int dim, int player);
+//void apply_move(int oldBoard[10][10], int new_board[10][10], pair<int, int> move, int dim, int player);
 
 void apply_move(int oldBoard[10][10], int new_board[10][10], pair<int, int> move, int dim, int pl, bool cp, int &inc) {
     int op = 1 - pl;

@@ -1,21 +1,21 @@
 import MatrixEval as meh
+# kvuli tomu ze cela logicka modulu je v cpp bude repositar nahran na https://github.com/sen4eg
 
 class MyPlayer():
-    '''Template Docstring for MyPlayer, look at the TODOs'''
+    '''Hrac vyuziva AB pruning s nejak dynamickym tvorenym odmemne funkce'''
 
     def __init__(self, my_color,opponent_color, board_size=8):
         self.name = 'vaginars'
         self.my_color = my_color        
         self.opponent_color = opponent_color
         self.board_size = board_size
-        self.me = meh.MatrixEvaluator()
         # self.me.createMLAgent([64,32,16,1],[0,0,1])
 
 
     def move(self,board):
         # TODO: write you method
         # you can implement auxiliary fucntions, of course
-        return self.me.calculateBestMove(board, self.my_color, 5)
+        return meh.calculateBestMove(board, self.my_color, 5)
 
     def __is_correct_move(self, move, board):
         dx = [-1, -1, -1, 0, 1, 1, 1, 0]
